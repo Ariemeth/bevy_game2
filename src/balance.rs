@@ -1,0 +1,3 @@
+pub const AUTO_CLICKER_BASE_COST: f64 = 10.0;
+pub const AUTO_CLICKER_COST_SCALING: f64 = 1.15;
+pub const AUTO_CLICKER_PRODUCTION: f64 = 1.0;
