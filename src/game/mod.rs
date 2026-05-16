@@ -1,10 +1,10 @@
-pub mod resources;
 pub mod events;
+pub mod resources;
 pub mod systems;
 
-use bevy::prelude::*;
 use crate::game::resources::GameData;
 use crate::game::systems::*;
+use bevy::prelude::*;
 
 pub struct GamePlugin;
 

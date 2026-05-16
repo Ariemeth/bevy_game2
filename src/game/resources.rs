@@ -1,5 +1,5 @@
-use bevy::prelude::*;
 use crate::balance::AUTO_CLICKER_BASE_COST;
+use bevy::prelude::*;
 
 #[derive(Resource)]
 pub struct GameData {

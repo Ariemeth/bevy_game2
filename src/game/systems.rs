@@ -1,7 +1,7 @@
-use bevy::prelude::*;
-use crate::game::resources::GameData;
-use crate::game::events::UpgradeEvent;
 use crate::balance::{AUTO_CLICKER_COST_SCALING, AUTO_CLICKER_PRODUCTION};
+use crate::game::events::UpgradeEvent;
+use crate::game::resources::GameData;
+use bevy::prelude::*;
 
 pub fn idle_production(time: Res<Time>, mut game_data: ResMut<GameData>) {
     game_data.currency += game_data.production_rate * time.delta_secs_f64();

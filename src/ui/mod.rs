@@ -1,8 +1,8 @@
 pub mod components;
 pub mod systems;
 
-use bevy::prelude::*;
 use crate::ui::systems::*;
+use bevy::prelude::*;
 
 pub struct UiPlugin;
 

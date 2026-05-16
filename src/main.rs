@@ -1,11 +1,10 @@
-
+mod balance;
 mod game;
 mod ui;
-mod balance;
 
-use bevy::prelude::*;
 use crate::game::GamePlugin;
 use crate::ui::UiPlugin;
+use bevy::prelude::*;
 
 fn main() -> AppExit {
     App::new()

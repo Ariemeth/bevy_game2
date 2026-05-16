@@ -1,8 +1,8 @@
-use bevy::prelude::*;
-use crate::game::resources::GameData;
-use crate::game::events::UpgradeEvent;
-use crate::ui::components::*;
 use crate::balance::AUTO_CLICKER_BASE_COST;
+use crate::game::events::UpgradeEvent;
+use crate::game::resources::GameData;
+use crate::ui::components::*;
+use bevy::prelude::*;
 
 pub fn setup_ui(mut commands: Commands) {
     commands.spawn(Camera2d);
