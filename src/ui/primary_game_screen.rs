@@ -1,18 +1,22 @@
-use bevy::prelude::*;
 use crate::game::events::UpgradeEvent;
 use crate::game::resources::GameData;
 use crate::game::state::GameState;
+use bevy::prelude::*;
 
-pub struct PrimaryGamePlugin;
+pub struct PrimaryGameScreenPlugin;
 
-impl Plugin for PrimaryGamePlugin {
+impl Plugin for PrimaryGameScreenPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (setup_camera, setup_ui))
             .add_systems(OnEnter(GameState::Running), show_ui)
             .add_systems(OnEnter(GameState::Menu), hide_ui)
             .add_systems(
                 Update,
-                (update_ui, handle_click.run_if(in_state(GameState::Running))),
+                (
+                    update_ui,
+                    handle_click_button.run_if(in_state(GameState::Running)),
+                    handle_upgrade_button.run_if(in_state(GameState::Running)),
+                ),
             );
     }
 }
@@ -32,11 +36,11 @@ pub struct UpgradeButton;
 #[derive(Component)]
 pub struct UpgradeText;
 
-pub fn setup_camera(mut commands: Commands) {
+fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d);
 }
 
-pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>) {
+fn setup_ui(mut commands: Commands, game_data: Res<GameData>) {
     commands
         .spawn(Node {
             width: Val::Percent(100.0),
@@ -97,7 +101,10 @@ pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>) {
                 ))
                 .with_children(|parent| {
                     parent.spawn((
-                        Text::new(format!("Buy AutoClicker ({:.1})", game_data.auto_clicker_cost)),
+                        Text::new(format!(
+                            "Buy AutoClicker ({:.1})",
+                            game_data.auto_clicker_cost
+                        )),
                         TextFont {
                             font_size: 20.0,
                             ..default()
@@ -108,51 +115,53 @@ pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>) {
         });
 }
 
-pub fn show_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
+fn show_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
     for mut visibility in &mut ui_query {
         *visibility = Visibility::Visible;
     }
 }
 
-pub fn hide_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
+fn hide_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
     for mut visibility in &mut ui_query {
         *visibility = Visibility::Hidden;
     }
 }
 
-pub fn update_ui(
+fn update_ui(
     game_data: Res<GameData>,
-    mut currency_query: Query<&mut Text, (With<CurrencyText>, Without<UpgradeText>)>,
-    mut upgrade_query: Query<&mut Text, (With<UpgradeText>, Without<CurrencyText>)>,
+    mut texts: ParamSet<(
+        Single<&mut Text, With<CurrencyText>>,
+        Single<&mut Text, With<UpgradeText>>,
+    )>,
 ) {
-    for mut text in &mut currency_query {
-        text.0 = format!("Currency: {:.1}", game_data.currency);
-    }
+    texts.p0().0 = format!("Currency: {:.1}", game_data.currency);
 
-    for mut text in &mut upgrade_query {
-        text.0 = format!(
-            "Buy AutoClicker ({:.1})\nOwned: {}",
-            game_data.auto_clicker_cost, game_data.auto_clicker_count
-        );
+    texts.p1().0 = format!(
+        "Buy AutoClicker ({:.1})\nOwned: {}",
+        game_data.auto_clicker_cost, game_data.auto_clicker_count
+    );
+}
+
+fn handle_click_button(
+    mut game_data: ResMut<GameData>,
+    interaction_query: Single<&Interaction, (Changed<Interaction>, With<ClickButton>)>,
+) {
+    match *interaction_query {
+        Interaction::Pressed => {
+            game_data.currency += game_data.click_power;
+        }
+        _ => {}
     }
 }
 
-pub fn handle_click(
-    mut game_data: ResMut<GameData>,
+fn handle_upgrade_button(
     mut commands: Commands,
-    mut interaction_query: Query<
-        (&Interaction, Option<&ClickButton>, Option<&UpgradeButton>),
-        (Changed<Interaction>, With<Button>),
-    >,
+    interaction_query: Single<&Interaction, (Changed<Interaction>, With<UpgradeButton>)>,
 ) {
-    for (interaction, click_btn, upgrade_btn) in &mut interaction_query {
-        if *interaction == Interaction::Pressed {
-            if click_btn.is_some() {
-                game_data.currency += game_data.click_power;
-            }
-            if upgrade_btn.is_some() {
-                commands.trigger(UpgradeEvent::AutoClicker);
-            }
+    match *interaction_query {
+        Interaction::Pressed => {
+            commands.trigger(UpgradeEvent::AutoClicker);
         }
+        _ => {}
     }
 }
