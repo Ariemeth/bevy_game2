@@ -1,10 +1,29 @@
-use crate::balance::AUTO_CLICKER_BASE_COST;
+use bevy::prelude::*;
 use crate::game::events::UpgradeEvent;
 use crate::game::resources::GameData;
-use crate::ui::components::*;
-use bevy::prelude::*;
 
-pub fn setup_ui(mut commands: Commands) {
+pub struct PrimaryGamePlugin;
+
+impl Plugin for PrimaryGamePlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, setup_ui);
+        app.add_systems(Update, (update_ui, handle_click));
+    }
+}
+
+#[derive(Component)]
+pub struct CurrencyText;
+
+#[derive(Component)]
+pub struct ClickButton;
+
+#[derive(Component)]
+pub struct UpgradeButton;
+
+#[derive(Component)]
+pub struct UpgradeText;
+
+pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>,) {
     commands.spawn(Camera2d);
 
     commands
@@ -66,7 +85,7 @@ pub fn setup_ui(mut commands: Commands) {
                 ))
                 .with_children(|parent| {
                     parent.spawn((
-                        Text::new(format!("Buy AutoClicker ({:.1})", AUTO_CLICKER_BASE_COST)),
+                        Text::new(format!("Buy AutoClicker ({:.1})", game_data.auto_clicker_cost)),
                         TextFont {
                             font_size: 20.0,
                             ..default()

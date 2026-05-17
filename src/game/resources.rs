@@ -1,4 +1,4 @@
-use crate::balance::AUTO_CLICKER_BASE_COST;
+use crate::game::balance::AUTO_CLICKER_BASE_COST;
 use bevy::prelude::*;
 
 #[derive(Resource)]

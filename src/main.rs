@@ -1,14 +1,10 @@
-mod balance;
-mod game;
-mod ui;
-
-use crate::game::GamePlugin;
-use crate::ui::UiPlugin;
 use bevy::prelude::*;
+use bevy_game2::{GamePlugin, PrimaryGameUIPlugin, MenuPlugin, GameState};
 
 fn main() -> AppExit {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins((GamePlugin, UiPlugin))
+        .init_state::<GameState>()
+        .add_plugins((GamePlugin, PrimaryGameUIPlugin, MenuPlugin))
         .run()
 }
