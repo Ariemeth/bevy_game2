@@ -1,15 +1,24 @@
 use bevy::prelude::*;
 use crate::game::events::UpgradeEvent;
 use crate::game::resources::GameData;
+use crate::game::state::GameState;
 
 pub struct PrimaryGamePlugin;
 
 impl Plugin for PrimaryGamePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup_ui);
-        app.add_systems(Update, (update_ui, handle_click));
+        app.add_systems(Startup, (setup_camera, setup_ui))
+            .add_systems(OnEnter(GameState::Running), show_ui)
+            .add_systems(OnEnter(GameState::Menu), hide_ui)
+            .add_systems(
+                Update,
+                (update_ui, handle_click.run_if(in_state(GameState::Running))),
+            );
     }
 }
+
+#[derive(Component)]
+pub struct PrimaryGameUi;
 
 #[derive(Component)]
 pub struct CurrencyText;
@@ -23,9 +32,11 @@ pub struct UpgradeButton;
 #[derive(Component)]
 pub struct UpgradeText;
 
-pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>,) {
+pub fn setup_camera(mut commands: Commands) {
     commands.spawn(Camera2d);
+}
 
+pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>) {
     commands
         .spawn(Node {
             width: Val::Percent(100.0),
@@ -35,6 +46,7 @@ pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>,) {
             justify_content: JustifyContent::Center,
             ..default()
         })
+        .insert((PrimaryGameUi, Visibility::Hidden))
         .with_children(|parent| {
             parent.spawn((
                 Text::new("Currency: 0"),
@@ -94,6 +106,18 @@ pub fn setup_ui(mut commands: Commands, game_data: Res<GameData>,) {
                     ));
                 });
         });
+}
+
+pub fn show_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
+    for mut visibility in &mut ui_query {
+        *visibility = Visibility::Visible;
+    }
+}
+
+pub fn hide_ui(mut ui_query: Query<&mut Visibility, With<PrimaryGameUi>>) {
+    for mut visibility in &mut ui_query {
+        *visibility = Visibility::Hidden;
+    }
 }
 
 pub fn update_ui(
