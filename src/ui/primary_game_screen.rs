@@ -1,4 +1,4 @@
-use crate::game::events::UpgradeEvent;
+use crate::game::events::{ClickEvent, UpgradeEvent};
 use crate::game::resources::GameData;
 use crate::game::state::GameState;
 use bevy::prelude::*;
@@ -143,12 +143,12 @@ fn update_ui(
 }
 
 fn handle_click_button(
-    mut game_data: ResMut<GameData>,
+    mut commands: Commands,
     interaction_query: Single<&Interaction, (Changed<Interaction>, With<ClickButton>)>,
 ) {
     match *interaction_query {
         Interaction::Pressed => {
-            game_data.currency += game_data.click_power;
+            commands.trigger(ClickEvent);
         }
         _ => {}
     }
